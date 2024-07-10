@@ -6,16 +6,16 @@ import {
   deleteTodo,
   updateTodo,
 } from "../controllers/todos.controllers";
-import { auth } from "../middlewares/auth.middleware";
+import { authenticate, authorize } from "../middlewares/auth.middleware";
 
 const router = express.Router();
 
-router.use(auth);
+router.use(authenticate);
 
-router.get("/", getTodos);
-router.post("/", createTodos);
-router.get("/:id", getTodoById);
-router.delete("/:id", deleteTodo);
-router.put("/:id", updateTodo);
+router.get("/", authorize("users.get"), getTodos);
+router.post("/", authorize("users.create"), createTodos);
+router.get("/:id", authorize("users.get"), getTodoById);
+router.delete("/:id", authorize("users.delete"), deleteTodo);
+router.put("/:id", authorize("users.update"), updateTodo);
 
 export default router;

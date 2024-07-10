@@ -7,8 +7,6 @@ let todos: Todo[] = [];
  * @returns {Todo[]} Array of todos.
  */
 const getTodos = (userId: string): Todo[] => {
-  console.log(`user id is ${userId}`);
-
   const newTodos: Todo[] = [];
   todos.forEach((todo: Todo) => {
     if (todo.userId === userId) {
@@ -61,7 +59,7 @@ const getTodoById = (id: string, userId: string): Todo | undefined => {
 const deleteTodoById = (id: string, userId: string): boolean => {
   const initialLength = todos.length;
   const newTodos = todos.filter(
-    (todo) => todo.id !== id && todo.userId !== userId
+    (todo) => todo.id !== id && todo.userId === userId
   );
   todos = newTodos;
 
@@ -77,20 +75,21 @@ const deleteTodoById = (id: string, userId: string): boolean => {
  */
 const updateTodoById = (
   id: string,
-  newtitle: string | undefined,
-  newcompleted: boolean | undefined,
+  body: Partial<Pick<Todo, "title" | "completed">>,
   userId: string
 ): boolean => {
   let isChanged: boolean = false;
+  const { title, completed } = body;
+
   todos = todos.map((todo) => {
     if (todo.id === id && todo.userId === userId) {
       isChanged = true;
       return {
         ...todo, //spread the current todo properties
-        title: newtitle !== undefined ? newtitle : todo.title, // Update title if provided
-        completed: newcompleted !== undefined ? newcompleted : todo.completed, // Update completed if provided
+        title: title !== undefined ? title : todo.title, // Update title if provided
+        completed: completed !== undefined ? completed : todo.completed, // Update completed if provided
         updatedAt:
-          newtitle !== undefined && newcompleted !== undefined
+          title !== undefined || completed !== undefined
             ? new Date()
             : todo.updatedAt,
       };

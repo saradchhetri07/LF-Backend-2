@@ -1,9 +1,11 @@
 import express from "express";
 import config from "./config";
 import routers from "./routes/index.routes";
+import { requestLogger } from "./middlewares/logger";
 
 const app = express();
 app.use(express.json());
+app.use(requestLogger);
 app.use(routers);
 
 /**

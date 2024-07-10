@@ -1,93 +1,107 @@
-import { log } from "console";
-import e, { Request, Response } from "express";
+import HTTPStatusCodes from "http-status-codes";
+import { NextFunction, Response } from "express";
 import * as TodoService from "../services/todos.service";
-import { JwtPayload } from "jsonwebtoken";
-import { Todo } from "../interfaces/todos.interface";
-import { CustomRequest } from "../interfaces/user.interface";
+import { Request } from "../interfaces/auth.interface";
+import { BadRequestError } from "../error/BadRequestError";
+import { NotFoundError } from "../error/NotFoundError";
 
-const createTodos = (req: CustomRequest, res: Response) => {
-  const { body } = req;
+const createTodos = (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { body } = req;
 
-  const user = req.user;
+    const user = req.user;
 
-  //Check if user is authenticated
-  if (!user) {
-    return res.status(401).json({ message: "Unauthorized" });
+    if ([body.title, body.completed].some((field) => field?.trim === "")) {
+      return res.status(422).json({ message: "all fields are required" });
+    }
+
+    const createdTodo = TodoService.createTodos(body, user!.id);
+    if (createdTodo === undefined) {
+      throw new Error("todo creation failed");
+    }
+
+    return res
+      .status(HTTPStatusCodes.CREATED)
+      .json({ message: "todos created" });
+  } catch (error) {
+    if (error instanceof Error) {
+      next(new BadRequestError(error.message));
+    }
   }
-
-  if ([body.title, body.completed].some((field) => field?.trim === "")) {
-    return res.status(422).json({ message: "all fields are required" });
-  }
-
-  TodoService.createTodos(body, user.id);
-  res.status(201).json({ message: "todos created" });
 };
 
-const getTodos = (req: CustomRequest, res: Response) => {
-  const user = req.user;
+const getTodos = (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const user = req.user;
 
-  if (!user) {
-    return res.status(401).json({ message: "Unauthorized" });
+    const todos = TodoService.getTodos(user!.id);
+
+    if (todos === undefined) {
+      throw new Error("cannot get todos");
+    }
+
+    return res.status(HTTPStatusCodes.OK).json(todos);
+  } catch (error) {
+    if (error instanceof Error) {
+      next(new NotFoundError(error.message));
+    }
   }
-
-  const todos = TodoService.getTodos(user.id);
-  res.status(200).json(todos);
 };
 
-const getTodoById = (req: CustomRequest, res: Response) => {
-  const user = req.user;
+const getTodoById = (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const user = req.user;
 
-  if (!user) {
-    return res.status(401).json({ message: "Unauthorized" });
+    const todoId = req.params.id;
+
+    const todo = TodoService.getTodoById(todoId.toString(), user!.id);
+
+    if (todo === undefined) {
+      throw new Error("todo not found");
+    }
+    return res.status(HTTPStatusCodes.OK).json({ message: todo });
+  } catch (error) {
+    if (error instanceof Error) {
+      next(new NotFoundError(error.message));
+    }
   }
+};
+
+const deleteTodo = (req: Request, res: Response, next: NextFunction) => {
+  const user = req.user;
 
   const todoId = req.params.id;
 
-  const todo = TodoService.getTodoById(todoId.toString(), user.id);
+  const isDeleted = TodoService.deleteTodoById(todoId, user!.id);
 
-  res.status(200).json({ message: todo });
-};
-
-const deleteTodo = (req: CustomRequest, res: Response) => {
-  const user = req.user;
-
-  if (!user) {
-    return res.status(401).json({ message: "Unauthorized" });
-  }
-
-  const todoId = req.params.id;
-
-  const isDeleted = TodoService.deleteTodoById(todoId, user.id);
   if (!isDeleted) {
-    return res.status(404).json({ message: "deletion failed" });
+    return next(new BadRequestError("couldn't delete todo"));
   }
-  res.status(200).json({ message: "todo deletion successful" });
+  return res
+    .status(HTTPStatusCodes.OK)
+    .json({ message: "todo deletion successful" });
 };
 
-const updateTodo = (req: CustomRequest, res: Response) => {
-  const user = req.user;
+const updateTodo = (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const user = req.user;
 
-  if (!user) {
-    return res.status(401).json({ message: "Unauthorized" });
+    const todoId = req.params.id;
+    const { body } = req;
+    const isUpdated = TodoService.updateTodoById(todoId, body, user!.id);
+
+    if (!isUpdated) {
+      throw new Error("updation failed");
+    }
+
+    return res
+      .status(HTTPStatusCodes.OK)
+      .json({ message: "todo updated successfully" });
+  } catch (error) {
+    if (error instanceof Error) {
+      next(new BadRequestError(error.message));
+    }
   }
-
-  const todoId = req.params.id;
-  let { title, completed } = req.body;
-
-  const isUpdated = TodoService.updateTodoById(
-    todoId,
-    title,
-    completed,
-    user.id
-  );
-
-  if (!isUpdated) {
-    return {
-      error: "updation failed",
-    };
-  }
-
-  res.status(200).json({ message: "todo updated successfully" });
 };
 
 export { createTodos, getTodos, getTodoById, deleteTodo, updateTodo };
