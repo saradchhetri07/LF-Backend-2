@@ -26,4 +26,11 @@ const signUp = async (req: Request, res: Response) => {
   return res.status(200).json({ message: "Sign up successful" });
 };
 
-export { login, signUp };
+const refresh = async (req: Request, res: Response) => {
+  const { refreshToken } = req.body;
+  const data = AuthServices.refresh(refreshToken);
+
+  return res.status(200).json(data);
+};
+
+export { login, signUp, refresh };

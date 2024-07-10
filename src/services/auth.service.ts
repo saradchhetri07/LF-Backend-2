@@ -1,8 +1,8 @@
 import bcrypt from "bcrypt";
 import { UserInterface } from "../interfaces/user.interface";
-import { sign } from "jsonwebtoken";
 import config from "../config";
 import * as UserServices from "../services/user.service";
+import { JwtPayload, verify, sign } from "jsonwebtoken";
 
 const getUserByEmail = (email: string) => {
   return UserServices.getUserByEmail(email);
@@ -53,4 +53,30 @@ const login = async (body: Pick<UserInterface, "email" | "password">) => {
   };
 };
 
-export { getUserByEmail, signUpUser, login };
+const refresh = (refreshToken: string) => {
+  const decodedRefreshToken = verify(
+    refreshToken,
+    config.jwt.secret!
+  ) as JwtPayload;
+
+  const payload = {
+    id: decodedRefreshToken.id,
+    name: decodedRefreshToken.name,
+    email: decodedRefreshToken.email,
+  };
+
+  const newAccessToken = sign(payload, config.jwt.secret!, {
+    expiresIn: config.jwt.accessTokenExpiryMS,
+  });
+
+  const newRefreshToken = sign(payload, config.jwt.secret!, {
+    expiresIn: config.jwt.refreshTokenExpiryMS,
+  });
+
+  return {
+    newAccessToken,
+    newRefreshToken,
+  };
+};
+
+export { getUserByEmail, signUpUser, login, refresh };
