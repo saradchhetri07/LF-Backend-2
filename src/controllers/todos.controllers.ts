@@ -64,11 +64,22 @@ const deleteTodo = (req: CustomRequest, res: Response) => {
   res.status(200).json({ message: "todo deletion successful" });
 };
 
-const updateTodo = (req: Request, res: Response) => {
+const updateTodo = (req: CustomRequest, res: Response) => {
+  const user = req.user;
+
+  if (!user) {
+    return res.status(401).json({ message: "Unauthorized" });
+  }
+
   const todoId = req.params.id;
   let { title, completed } = req.body;
 
-  const isUpdated = TodoService.updateTodoById(todoId, title, completed);
+  const isUpdated = TodoService.updateTodoById(
+    todoId,
+    title,
+    completed,
+    user.id
+  );
 
   if (!isUpdated) {
     return {

@@ -50,9 +50,10 @@ const deleteTodoById = (id: string, userId: string): boolean => {
 const updateTodoById = (
   id: string,
   title: string,
-  completed: boolean
+  completed: boolean,
+  userId: string
 ): boolean => {
-  return TodoModel.updateTodoById(id, title, completed);
+  return TodoModel.updateTodoById(id, title, completed, userId);
 };
 
 export { getTodos, createTodos, getTodoById, deleteTodoById, updateTodoById };

@@ -78,11 +78,12 @@ const deleteTodoById = (id: string, userId: string): boolean => {
 const updateTodoById = (
   id: string,
   newtitle: string | undefined,
-  newcompleted: boolean | undefined
+  newcompleted: boolean | undefined,
+  userId: string
 ): boolean => {
   let isChanged: boolean = false;
   todos = todos.map((todo) => {
-    if (todo.id === id) {
+    if (todo.id === id && todo.userId === userId) {
       isChanged = true;
       return {
         ...todo, //spread the current todo properties
