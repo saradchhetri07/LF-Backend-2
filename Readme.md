@@ -36,11 +36,11 @@ A simple Express-based CRUD API for managing TODO items.
 
 ## docker pull
 
-docker pull saradchhetri7/todo-app-authentication:1.0.0
+docker pull saradchhetri7/authenticated-todo-app:1.0.0
 
 ## Docker Image
 
-https://hub.docker.com/repository/docker/saradchhetri7/todo-app-authentication/general
+https://hub.docker.com/repository/docker/saradchhetri7/authenticated-todo-app/general
 
 ## Usage
 
