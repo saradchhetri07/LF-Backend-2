@@ -136,7 +136,7 @@ Docker
 Pull the Docker image:
 
 ```bash
-  docker pull saradchhetri7/authenticated-todo-app:1.1.0
+  docker pull saradchhetri7/authenticated-todo-app:v1.2.0-LF-assignment-4
 ```
 
 Docker repository
