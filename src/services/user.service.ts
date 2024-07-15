@@ -1,4 +1,5 @@
-import { UserInterface } from "./../interfaces/user.interface";
+import { BadRequestError } from "./../error/BadRequestError";
+import { GetUserQuery, UserInterface } from "./../interfaces/user.interface";
 import * as UserModel from "../models/user.model";
 import bcrypt from "bcrypt";
 
@@ -28,7 +29,9 @@ const signUpUser = (
  * @returns {Promise<UserInterface | undefined>} The user object if found, undefined otherwise.
  */
 const getUserByEmail = (email: string) => {
-  return UserModel.getUsersByEmail(email);
+  const user = UserModel.getUsersByEmail(email);
+
+  return user;
 };
 
 /**
@@ -36,7 +39,11 @@ const getUserByEmail = (email: string) => {
  * @returns {Promise<UserInterface[]>} Array of all user objects.
  */
 const getAllUsers = () => {
-  return UserModel.getAllUsers();
+  const users = UserModel.getAllUsers();
+  if (!users) {
+    throw new BadRequestError("No Users were found");
+  }
+  return users;
 };
 
 /**
@@ -50,10 +57,12 @@ const createUser = async (
     "name" | "password" | "email" | "role" | "permissions"
   >
 ) => {
+  const hashedPassword = await bcrypt.hash(body.password, 10);
+
   return UserModel.signUpUser(
     body.name,
     body.email,
-    body.password,
+    hashedPassword,
     body.role,
     body.permissions
   );
@@ -66,6 +75,10 @@ const createUser = async (
  */
 const getUserId = (id: string) => {
   const data = UserModel.getUserById(id);
+
+  if (!data) {
+    throw new BadRequestError(`user with id:${id} not found`);
+  }
 
   return data;
 };

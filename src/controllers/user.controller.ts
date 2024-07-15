@@ -4,9 +4,11 @@ import { NextFunction, Request, Response } from "express";
 import * as UserServices from "../services/user.service";
 import { NotFoundError } from "../error/NotFoundError";
 import { BadRequestError } from "../error/BadRequestError";
+import { strictTransportSecurity } from "helmet";
 
 const getAllUsers = async (req: Request, res: Response) => {
   const users = UserServices.getAllUsers();
+
   return res.status(200).json(await users);
 };
 
@@ -17,7 +19,7 @@ const getUserById = (req: Request, res: Response, next: NextFunction) => {
     const data = UserServices.getUserId(id);
 
     if (data == undefined) {
-      throw new Error("user not found");
+      throw new Error(`user with id:${id} not found`);
     }
 
     return res.status(HTTPStatusCodes.OK).json(data);
@@ -32,10 +34,15 @@ const createUser = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { body } = req;
 
+    const emailExists = UserServices.getUserByEmail(body.email);
+
+    if (emailExists) {
+      throw new Error("user with that email already exists");
+    }
     await UserServices.createUser(body);
 
     return res
-      .status(HTTPStatusCodes.OK)
+      .status(HTTPStatusCodes.CREATED)
       .json({ message: "User created successfully" });
   } catch (error) {
     if (error instanceof Error) {
@@ -51,13 +58,13 @@ const updateUser = async (req: Request, res: Response, next: NextFunction) => {
     const updatedUser = await UserServices.updateUser(id, body);
 
     if (updatedUser == undefined) {
-      throw new Error("user updation failed");
+      throw new Error(`User with id: ${id} not found`);
     }
 
     return res.status(HTTPStatusCodes.OK).json(updatedUser);
   } catch (error) {
     if (error instanceof Error) {
-      next(new NotFoundError(error.message));
+      next(new BadRequestError(error.message));
     }
   }
 };
@@ -68,14 +75,14 @@ const deleteUser = (req: Request, res: Response, next: NextFunction) => {
 
     const isDeleted = UserServices.deleteUser(id);
     if (!isDeleted) {
-      throw new Error("user deletion failed");
+      throw new Error(`User with id: ${id} not found`);
     }
     return res
       .status(HTTPStatusCodes.OK)
-      .json({ message: "user deletion successful" });
+      .json({ message: `User with id: ${id} deleted` });
   } catch (error) {
     if (error instanceof Error) {
-      next(new NotFoundError(error.message));
+      next(new BadRequestError(error.message));
     }
   }
 };

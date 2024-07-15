@@ -40,6 +40,7 @@ export const createUserBodySchema = Joi.object({
       }
       return value;
     }),
+
   role: Joi.string().valid("user", "superUser").required().messages({
     "any.required": "role is required",
     "any.only": "role must be either 'user' or 'superUser'",
@@ -50,7 +51,7 @@ export const createUserBodySchema = Joi.object({
     .required()
     .messages({
       "any.required": "permissions are required",
-      "any.includes": "permissions must be one of get,read,update,delete",
+      "array.includes": "permissions must be one of get,read,update,delete",
     }),
 }).options({
   stripUnknown: true,

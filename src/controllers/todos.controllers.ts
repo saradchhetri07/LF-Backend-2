@@ -22,7 +22,7 @@ const createTodos = (req: Request, res: Response, next: NextFunction) => {
 
     return res
       .status(HTTPStatusCodes.CREATED)
-      .json({ message: "todos created" });
+      .json({ message: "todos created", data: createdTodo });
   } catch (error) {
     if (error instanceof Error) {
       next(new BadRequestError(error.message));
@@ -57,9 +57,9 @@ const getTodoById = (req: Request, res: Response, next: NextFunction) => {
     const todo = TodoService.getTodoById(todoId.toString(), user!.id);
 
     if (todo === undefined) {
-      throw new Error("todo not found");
+      throw new Error(`Todo with id: ${todoId} doesnt exist`);
     }
-    return res.status(HTTPStatusCodes.OK).json({ message: todo });
+    return res.status(HTTPStatusCodes.OK).json(todo);
   } catch (error) {
     if (error instanceof Error) {
       next(new NotFoundError(error.message));
@@ -68,18 +68,22 @@ const getTodoById = (req: Request, res: Response, next: NextFunction) => {
 };
 
 const deleteTodo = (req: Request, res: Response, next: NextFunction) => {
-  const user = req.user;
+  try {
+    const user = req.user;
 
-  const todoId = req.params.id;
+    const todoId = req.params.id;
 
-  const isDeleted = TodoService.deleteTodoById(todoId, user!.id);
+    const isDeleted = TodoService.deleteTodoById(todoId, user!.id);
 
-  if (!isDeleted) {
-    return next(new BadRequestError("couldn't delete todo"));
+    if (!isDeleted) {
+      return next(new BadRequestError(`Todo with id: ${todoId} doesnt exist`));
+    }
+    return res
+      .status(HTTPStatusCodes.OK)
+      .json({ message: "todo deletion successful" });
+  } catch (error) {
+    throw new BadRequestError(error.message);
   }
-  return res
-    .status(HTTPStatusCodes.OK)
-    .json({ message: "todo deletion successful" });
 };
 
 const updateTodo = (req: Request, res: Response, next: NextFunction) => {

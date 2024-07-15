@@ -36,6 +36,7 @@ const genericErrorHandler = (
   }
 
   if (error instanceof BadRequestError) {
+    console.log("didnt come to badrequest error");
     return res.status(HTTPStatusCodes.BAD_REQUEST).json({
       message: error.message,
     });

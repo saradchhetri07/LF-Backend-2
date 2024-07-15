@@ -13,8 +13,11 @@ import {
   getUserQuerySchema,
   updateUserBodySchema,
 } from "../schema/user.schema";
+import { getUsersByEmail } from "../models/user.model";
 
 const router = express.Router();
+
+console.log(`came from integration test route`);
 
 router.use(authenticate);
 router.use(isSuperUser());

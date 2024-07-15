@@ -2,7 +2,7 @@ import { Todo } from "../interfaces/todos.interface";
 import * as TodoModel from "../models/todos.model";
 import loggerWithNameSpace from "../utils/logger";
 
-const logger = loggerWithNameSpace("TodoService");
+export const logger = loggerWithNameSpace("TodoService");
 
 /**
  * Retrieves the list of all todos for a specific user.
@@ -23,7 +23,7 @@ const getTodos = (userId: string): Todo[] => {
 const createTodos = (
   body: Pick<Todo, "title" | "completed">,
   id: string
-): Todo[] => {
+): Todo => {
   logger.info(`Creating new todo with title: ${body.title}`);
   const createdTodo = TodoModel.createTodos(body.title, body.completed, id);
   return createdTodo;

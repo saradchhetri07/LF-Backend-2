@@ -1,6 +1,15 @@
 import { Todo } from "../interfaces/todos.interface";
 
-let todos: Todo[] = [];
+export let todos: Todo[] = [
+  {
+    title: "make coffee",
+    completed: false,
+    id: "1",
+    userId: "2",
+    createdAt: new Date("2024-07-15T01:37:35.139Z"),
+    updatedAt: new Date("2024-07-15T01:37:35.139Z"),
+  },
+];
 
 /**
  * Retrieves the list of all todos.
@@ -25,19 +34,19 @@ const createTodos = (
   title: string,
   completed: boolean,
   userId: string
-): Todo[] => {
+): Todo => {
   let todosLength = todos.length;
-
-  todos.push({
+  const newTodo = {
     title: title,
     completed: completed,
     id: `${todosLength + 1}`,
     userId: userId,
     createdAt: new Date(),
     updatedAt: new Date(),
-  });
+  };
+  todos.push(newTodo);
 
-  return todos;
+  return newTodo;
 };
 
 /**

@@ -15,6 +15,7 @@ import {
 } from "../schema/todo.schema";
 
 const router = express.Router();
+router.use(express.json());
 
 router.use(authenticate);
 

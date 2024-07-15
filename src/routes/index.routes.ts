@@ -5,6 +5,7 @@ import userRouter from "../routes/user.routes";
 import { genericErrorHandler } from "../middlewares/errorHandler";
 
 const router = express.Router();
+router.use(express.json());
 
 router.use("/auth", authRouter);
 router.use("/users", userRouter);

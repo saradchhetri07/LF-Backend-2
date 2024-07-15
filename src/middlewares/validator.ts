@@ -19,6 +19,8 @@ export function validateReqBody(schema: Schema) {
     const { error, value } = schema.validate(req.body);
 
     if (error) {
+      console.log("inside  validator.ts");
+
       next(new BadRequestError(error.message));
     }
     req.body = value;

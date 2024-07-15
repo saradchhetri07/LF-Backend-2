@@ -1,7 +1,11 @@
-import { UserInterface, UserRole } from "../interfaces/user.interface";
+import {
+  GetUserQuery,
+  UserInterface,
+  UserRole,
+} from "../interfaces/user.interface";
 import bcrypt from "bcrypt";
 
-let users: UserInterface[] = [
+export let users: UserInterface[] = [
   {
     id: "1",
     name: "sangam chhetri",
@@ -27,17 +31,19 @@ const signUpUser = async (
   role: UserRole,
   permissions: string[]
 ) => {
-  const hashedPassword = await bcrypt.hash(password, 10);
+  console.log(`came from create user test`);
+
   const newUser: UserInterface = {
     id: `${users.length + 1}`,
     name: newName,
     email: newEmail,
     role: role,
-    password: hashedPassword,
+    password,
     permissions: permissions,
   };
 
   users.push(newUser);
+  return newUser;
 };
 
 const getAllUsers = async () => {
