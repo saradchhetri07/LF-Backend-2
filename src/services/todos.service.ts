@@ -9,9 +9,9 @@ export const logger = loggerWithNameSpace("TodoService");
  * @param {string} userId - The ID of the user whose todos are to be retrieved.
  * @returns {Todo[]} Array of todos belonging to the user.
  */
-const getTodos = (userId: string): Todo[] => {
+const getTodos = async (userId: string) => {
   logger.info(`Fetching todos for user with ID: ${userId}`);
-  return TodoModel.getTodos(userId);
+  return TodoModel.TodoModel.getTodos(userId);
 };
 
 /**
@@ -20,13 +20,9 @@ const getTodos = (userId: string): Todo[] => {
  * @param {string} id - The ID of the user creating the todo.
  * @returns {Todo[]} Updated array of todos after addition.
  */
-const createTodos = (
-  body: Pick<Todo, "title" | "completed">,
-  id: string
-): Todo => {
-  logger.info(`Creating new todo with title: ${body.title}`);
-  const createdTodo = TodoModel.createTodos(body.title, body.completed, id);
-  return createdTodo;
+const createTodos = (todo: Pick<Todo, "title" | "completed">, id: string) => {
+  logger.info(`Creating new todo with title: ${todo.title}`);
+  return TodoModel.TodoModel.createTodo(todo, id);
 };
 
 /**
@@ -46,9 +42,9 @@ const getTodoById = (id: string, userId: string): Todo | undefined => {
  * @param {string} userId - The ID of the user who owns the todo.
  * @returns {boolean} True if the todo was successfully deleted, false otherwise.
  */
-const deleteTodoById = (id: string, userId: string): boolean => {
+const deleteTodoById = async (id: string, userId: string) => {
   logger.info(`Deleting todo with ID: ${id} for user with ID: ${userId}`);
-  return TodoModel.deleteTodoById(id, userId);
+  return TodoModel.TodoModel.deleteTodo(id, userId);
 };
 
 /**
@@ -58,13 +54,13 @@ const deleteTodoById = (id: string, userId: string): boolean => {
  * @param {string} userId - The ID of the user who owns the todo.
  * @returns {boolean} True if the todo was successfully updated, false otherwise.
  */
-const updateTodoById = (
+const updateTodoById = async (
   id: string,
   body: Partial<Pick<Todo, "title" | "completed">>,
   userId: string
-): boolean => {
+) => {
   logger.info(`Updating todo with ID: ${id} for user with ID: ${userId}`);
-  return TodoModel.updateTodoById(id, body, userId);
+  return TodoModel.TodoModel.updateTodo(body, id, userId);
 };
 
 export { getTodos, createTodos, getTodoById, deleteTodoById, updateTodoById };

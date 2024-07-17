@@ -10,7 +10,7 @@ const TABLE_NAME = "users";
  */
 export async function up(knex: Knex): Promise<void> {
   return knex.schema.createTable(TABLE_NAME, (table) => {
-    table.bigInteger("id").primary();
+    table.bigIncrements();
 
     table.string("name", 100).notNullable();
 
@@ -25,7 +25,7 @@ export async function up(knex: Knex): Promise<void> {
       .unsigned()
       .nullable()
       .references("id")
-      .inTable(TABLE_NAME);
+      .inTable("users");
 
     table.timestamp("updated_at").nullable();
 
@@ -33,7 +33,7 @@ export async function up(knex: Knex): Promise<void> {
       .bigInteger("updated_by")
       .unsigned()
       .references("id")
-      .inTable(TABLE_NAME)
+      .inTable("users")
       .nullable();
   });
 }

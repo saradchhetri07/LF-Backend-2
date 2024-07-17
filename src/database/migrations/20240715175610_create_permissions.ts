@@ -10,7 +10,7 @@ const TABLE_NAME = "user_permissions";
  */
 export async function up(knex: Knex): Promise<void> {
   return knex.schema.createTable(TABLE_NAME, (table) => {
-    table.bigint("id").primary();
+    table.bigIncrements();
 
     table.timestamp("created_at").notNullable().defaultTo(knex.raw("now()"));
 

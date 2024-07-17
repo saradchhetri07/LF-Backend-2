@@ -30,11 +30,11 @@ const createTodos = (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
-const getTodos = (req: Request, res: Response, next: NextFunction) => {
+const getTodos = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const user = req.user;
 
-    const todos = TodoService.getTodos(user!.id);
+    const todos = await TodoService.getTodos(user!.id);
 
     if (todos === undefined) {
       throw new Error("cannot get todos");
@@ -67,13 +67,15 @@ const getTodoById = (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
-const deleteTodo = (req: Request, res: Response, next: NextFunction) => {
+const deleteTodo = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const user = req.user;
 
     const todoId = req.params.id;
 
-    const isDeleted = TodoService.deleteTodoById(todoId, user!.id);
+    const isDeleted = await TodoService.deleteTodoById(todoId, user!.id);
+
+    console.log(`is deleted`, isDeleted);
 
     if (!isDeleted) {
       return next(new BadRequestError(`Todo with id: ${todoId} doesnt exist`));

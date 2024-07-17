@@ -38,12 +38,14 @@ const signUpUser = (
  * @throws {Error} If the email or password is invalid.
  */
 const login = async (body: Pick<UserInterface, "email" | "password">) => {
-  const existingUser = UserServices.getUserByEmail(body.email);
+  const existingUser = await UserServices.getUserByEmail(body.email);
   logger.info(`Logging in user with email: ${body.email}`);
 
   if (!existingUser) {
     throw new Error("Invalid email or password");
   }
+
+  console.log(`obtained user data`, existingUser);
 
   const isValidPassword = await bcrypt.compare(
     body.password,

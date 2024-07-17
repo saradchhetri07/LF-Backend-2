@@ -12,7 +12,7 @@ export async function up(knex: Knex): Promise<void> {
   return knex.schema.createTable(TABLE_NAME, (table) => {
     table.timestamp("created_at").notNullable().defaultTo(knex.raw("now()"));
 
-    table.bigInteger("id").primary(); // Adding id column as the primary key
+    table.bigIncrements(); // Adding id column as the primary key
 
     table.string("user_role", 100).notNullable();
 

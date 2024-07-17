@@ -10,7 +10,7 @@ const TABLE_NAME = "todos";
  */
 export async function up(knex: Knex): Promise<void> {
   return knex.schema.createTable(TABLE_NAME, (table) => {
-    table.bigint("id").primary();
+    table.bigIncrements();
 
     table.string("title", 100).notNullable();
 

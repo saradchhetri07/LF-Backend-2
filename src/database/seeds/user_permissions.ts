@@ -37,6 +37,31 @@ export function seed(knex: Knex): Promise<void> {
           user_id: 1,
           created_by: 2,
         },
+
+        {
+          id: 5,
+          permission_type: "get",
+          user_id: 1,
+          created_by: 2,
+        },
+        {
+          id: 6,
+          permission_type: "read",
+          user_id: 2,
+          created_by: 2,
+        },
+        {
+          id: 7,
+          permission_type: "update",
+          user_id: 2,
+          created_by: 2,
+        },
+        {
+          id: 8,
+          permission_type: "delete",
+          user_id: 2,
+          created_by: 2,
+        },
       ]);
     });
 }

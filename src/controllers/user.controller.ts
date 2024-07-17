@@ -1,22 +1,26 @@
 import { BaseError } from "./../error/BaseError";
 import HTTPStatusCodes from "http-status-codes";
-import { NextFunction, Request, Response } from "express";
+import { Request } from "../interfaces/auth.interface";
+import { NextFunction, Response } from "express";
 import * as UserServices from "../services/user.service";
 import { NotFoundError } from "../error/NotFoundError";
 import { BadRequestError } from "../error/BadRequestError";
-import { strictTransportSecurity } from "helmet";
+import { GetUserQuery } from "../interfaces/user.interface";
 
 const getAllUsers = async (req: Request, res: Response) => {
-  const users = UserServices.getAllUsers();
+  const { query } = req;
+  console.log(`query obtained is`, query);
 
-  return res.status(200).json(await users);
+  const data = await UserServices.getAllUsers(query);
+
+  return res.status(200).json(data);
 };
 
-const getUserById = (req: Request, res: Response, next: NextFunction) => {
+const getUserById = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const id = req.params.id;
 
-    const data = UserServices.getUserId(id);
+    const data = await UserServices.getUserId(id);
 
     if (data == undefined) {
       throw new Error(`user with id:${id} not found`);
@@ -34,7 +38,8 @@ const createUser = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { body } = req;
 
-    const emailExists = UserServices.getUserByEmail(body.email);
+    const emailExists = await UserServices.getUserByEmail(body.email);
+    console.log(`email exist `, emailExists);
 
     if (emailExists) {
       throw new Error("user with that email already exists");
@@ -57,11 +62,13 @@ const updateUser = async (req: Request, res: Response, next: NextFunction) => {
     const { body } = req;
     const updatedUser = await UserServices.updateUser(id, body);
 
-    if (updatedUser == undefined) {
+    if (updatedUser === undefined) {
       throw new Error(`User with id: ${id} not found`);
     }
 
-    return res.status(HTTPStatusCodes.OK).json(updatedUser);
+    return res
+      .status(HTTPStatusCodes.OK)
+      .json({ message: "user has been updated successfully" });
   } catch (error) {
     if (error instanceof Error) {
       next(new BadRequestError(error.message));
@@ -69,11 +76,11 @@ const updateUser = async (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
-const deleteUser = (req: Request, res: Response, next: NextFunction) => {
+const deleteUser = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { id } = req.params;
 
-    const isDeleted = UserServices.deleteUser(id);
+    const isDeleted = await UserServices.deleteUser(id);
     if (!isDeleted) {
       throw new Error(`User with id: ${id} not found`);
     }
@@ -87,4 +94,53 @@ const deleteUser = (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
-export { getAllUsers, getUserById, createUser, updateUser, deleteUser };
+const createRole = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { body } = req;
+    const roleCreated = UserServices.createRole(body);
+    if (!roleCreated) {
+      throw new Error("Role creation failed");
+    }
+    return res
+      .status(HTTPStatusCodes.CREATED)
+      .json({ message: "role has been created" });
+  } catch (error) {
+    if (error instanceof Error) {
+      next(new BadRequestError(error.message));
+    }
+  }
+};
+
+const createPermissions = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { body } = req;
+
+    const user = req.user!;
+
+    const permissionCreated = UserServices.createPermissions(body, user.id);
+    if (!permissionCreated) {
+      throw new Error("Permission creation failed");
+    }
+    return res
+      .status(HTTPStatusCodes.CREATED)
+      .json({ message: "permission has been created" });
+  } catch (error) {
+    if (error instanceof Error) {
+      next(new BadRequestError(error.message));
+    }
+  }
+};
+
+export {
+  getAllUsers,
+  getUserById,
+  createUser,
+  updateUser,
+  deleteUser,
+  createRole,
+  createPermissions,
+};

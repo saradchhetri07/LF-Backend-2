@@ -1,4 +1,5 @@
 import { Todo } from "../interfaces/todos.interface";
+import { BaseModel } from "./base";
 
 export let todos: Todo[] = [
   {
@@ -10,6 +11,51 @@ export let todos: Todo[] = [
     updatedAt: new Date("2024-07-15T01:37:35.139Z"),
   },
 ];
+
+export class TodoModel extends BaseModel {
+  static async createTodo(todo: Pick<Todo, "title" | "completed">, id: string) {
+    const todoToCreate = {
+      title: todo.title,
+      completed: todo.completed,
+      createdBy: id,
+    };
+    const todoCreated = this.queryBuilder().insert(todoToCreate).table("todos");
+
+    await todoCreated;
+  }
+
+  static async getTodos(userId: string) {
+    const todos = this.queryBuilder()
+      .table("users")
+      .select("users.name", "todos.id", "todos.title", "todos.completed")
+      .leftJoin("todos", "users.id", "todos.created_by")
+      .where({ "todos.created_by": userId });
+
+    return await todos;
+  }
+
+  static async deleteTodo(todoId: string, userId: string) {
+    const deletedTodo = this.queryBuilder()
+      .table("todos")
+      .where({ "todos.id": todoId, "todos.created_by": userId })
+      .del();
+    return await deletedTodo;
+  }
+
+  static async updateTodo(
+    todo: Partial<Pick<Todo, "title" | "completed">>,
+    todoId: string,
+    userId: string
+  ) {
+    const updatedTodo = this.queryBuilder()
+      .update(todo)
+      .table("todos")
+      .where({ id: todoId, createdBy: userId });
+    console.log(`updated todo is`, await updatedTodo);
+
+    return await updatedTodo;
+  }
+}
 
 /**
  * Retrieves the list of all todos.

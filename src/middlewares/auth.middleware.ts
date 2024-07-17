@@ -29,9 +29,15 @@ export function authenticate(req: Request, res: Response, next: NextFunction) {
     return;
   }
   try {
+    console.log(`came here 1`);
+    console.log(`obtained token`, token[1]);
+
     const user = verify(token[1], config.jwt.secret!) as UserInterface;
+    console.log(`came here 2`);
 
     req.user = user;
+
+    console.log(`from authorize function printing user value`, req.user);
     next();
   } catch (error) {
     next(new UnauthenticatedError("Unauthenticated"));
@@ -65,6 +71,8 @@ export function authorize(permission: string) {
 export function isSuperUser() {
   return (req: Request, res: Response, next: NextFunction) => {
     const user = req.user!;
+
+    console.log(`from authorize function printing user value`, user);
 
     //check if user is super user
     if (user.role === UserRole.superUser) {

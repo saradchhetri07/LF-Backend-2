@@ -10,14 +10,14 @@ const TABLE_NAME = "users";
  */
 export function seed(knex: Knex): Promise<void> {
   return knex(TABLE_NAME).then(() => {
-    return knex(TABLE_NAME).insert([
-      {
-        id: 3,
-        name: "shyam chhetri",
-        email: "shyamchhetri123@gmail.com",
-        password: "pepsodent123",
-        created_by: 3,
-      },
-    ]);
+    return knex(TABLE_NAME)
+      .del()
+      .insert([
+        {
+          name: "sarad chhetri",
+          email: "saradchhetri20690@gmail.com",
+          password: "Lu77pa@7882",
+        },
+      ]);
   });
 }
